@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>伊通本地信息平台</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        body {
+            background: #f7f8fa;
+            padding: 15px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .filter-bar {
+            background: #fff;
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .filter-bar select {
+            flex: 1;
+            min-width: 140px;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            position: relative;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .copy-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: #1677ff;
+            color: #fff;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+        .copy-btn:hover {
+            background: #0f5ecf;
+        }
+        .title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #222;
+        }
+        .meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .meta span {
+            background: #f0f7ff;
+            color: #1677ff;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .content {
+            line-height: 1.6;
+            font-size: 15px;
+            color: #333;
+            white-space: pre-line;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="filter-bar">
+            <select id="cate">
+                <option value="">全部信息大类</option>
+                <option value="招聘">招聘</option>
+                <option value="出租">出租</option>
+                <option value="出售">出售</option>
+                <option value="出兑/转让">出兑/转让</option>
+                <option value="服务/其他">服务/其他</option>
+            </select>
+
+            <select id="trade">
+                <option value="">全部行业类型</option>
+                <option value="餐饮/烧烤/火锅">餐饮/烧烤/火锅</option>
+                <option value="超市/百货/零售">超市/百货/零售</option>
+                <option value="美容/美甲/养生">美容/美甲/养生</option>
+                <option value="物流/快递/司机">物流/快递/司机</option>
+                <option value="工厂/技工/普工">工厂/技工/普工</option>
+                <option value="家政/保洁/护工">家政/保洁/护工</option>
+                <option value="房产/门市/公寓">房产/门市/公寓</option>
+                <option value="其他">其他</option>
+            </select>
+
+            <select id="jobType">
+                <option value="">全部用工类型</option>
+                <option value="全职长期">全职长期</option>
+                <option value="兼职/小时工">兼职/小时工</option>
+                <option value="学徒">学徒</option>
+                <option value="临时工/日结">临时工/日结</option>
+            </select>
+        </div>
+
+        <div id="list"></div>
+    </div>
+
+    <script>
+        // 你的信息数据
+        const data = [
+            {
+                cate: "招聘",
+                trade: "其他",
+                jobType: "全职长期",
+                title: "药店招聘",
+                sn: "3882-13【68906】",
+                content: "药店招聘有经验卖药营业员，同时招聘卖药学徒"
+            },
+            {
+                cate: "招聘",
+                trade: "餐饮/烧烤/火锅",
+                jobType: "全职长期",
+                title: "艾迪熊招聘",
+                sn: "6436-7《23233》",
+                content: "①收银员/售货员3名，薪资：3500-5500元/月（平均保底3500）\n②烘焙师/学徒1名，薪资3000+，全白班，45岁以下\n工作地点：伊通县艾迪熊各终端门店"
+            },
+            {
+                cate: "招聘",
+                trade: "工厂/技工/普工",
+                jobType: "全职长期",
+                title: "利霖招聘",
+                sn: "7028-27《76497》",
+                content: "1、维修电焊工2名，薪资5000-7500+\n2、维修焊工学徒1名，4000-4500\n3、捡铁普工1人，3000\n4、质检员1人，3500-4000\n5、叉车司机1人，5000-6000\n6、污水处理工1人，4200+\n7、锅炉工1人，4000-5000"
+            },
+            {
+                cate: "出租",
+                trade: "房产/门市/公寓",
+                jobType: "",
+                title: "公寓招租+楼房出售",
+                sn: "7805《91884》",
+                content: "市场北门邮政局东50米，精装修，独立厨房，独立卫浴，租期灵活\n阳光花园越层一.二楼，150多平米，毛坯楼。有花园带车库"
+            },
+            {
+                cate: "招聘",
+                trade: "家政/保洁/护工",
+                jobType: "全职长期",
+                title: "老年公寓招聘",
+                sn: "7866《59139》",
+                content: "长年招收：自理，半自理，及完全失能老人\n包吃，住，洗衣服，洗澡，理发\n能自理老人800元起价\n另招服务员"
+            }
+        ];
+
+        // 渲染页面
+        function render() {
+            const c = document.getElementById("cate").value;
+            const t = document.getElementById("trade").value;
+            const j = document.getElementById("jobType").value;
+
+            const filtered = data.filter(item => {
+                return (c === "" || item.cate === c)
+                    && (t === "" || item.trade === t)
+                    && (j === "" || item.jobType === j);
+            });
+
+            const html = filtered.map((item, index) => `
+                <div class="card">
+                    <button class="copy-btn" onclick="copy(${index})">复制本条</button>
+                    <div class="title">${item.title}</div>
+                    <div class="meta">
+                        <span>${item.cate}</span>
+                        ${item.trade ? `<span>${item.trade}</span>` : ''}
+                        ${item.jobType ? `<span>${item.jobType}</span>` : ''}
+                        <span>${item.sn}</span>
+                    </div>
+                    <div class="content">${item.content}</div>
+                </div>
+            `).join('');
+            document.getElementById("list").innerHTML = html;
+        }
+
+        // 复制功能
+        function copy(index) {
+            const item = data[index];
+            const text = `
+【${item.title}】${item.sn}
+类型：${item.cate}
+行业：${item.trade || '-'}
+用工：${item.jobType || '-'}
+内容：
+${item.content}
+            `.trim();
+            navigator.clipboard.writeText(text).then(() => {
+                alert("已复制本条信息！");
+            });
+        }
+
+        // 监听筛选变化
+        document.getElementById("cate").addEventListener("change", render);
+        document.getElementById("trade").addEventListener("change", render);
+        document.getElementById("jobType").addEventListener("change", render);
+
+        // 初始化渲染
+        render();
+    </script>
+</body>
+</html>
