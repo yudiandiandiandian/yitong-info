@@ -14,15 +14,36 @@ button{width:100%;padding:12px;background:#0d6efd;color:white;border:none;border
 .danger{background:#dc3545}
 .card{border:1px solid #eee;border-radius:8px;padding:12px;margin-top:10px}
 .card .title{font-weight:bold}
+.card .id{font-size:12px;color:#666}
+.card .tags{font-size:13px;color:#888}
 .card .btns{display:flex;gap:8px;margin-top:8px}
 .card button{padding:6px;font-size:14px}
+.login-box{max-width:400px;margin:50px auto;padding:20px;background:#fff;border-radius:12px}
+.search-box{display:flex;gap:8px;margin-bottom:10px}
+.search-box input{flex:1;margin:0}
+.search-box button{width:auto;margin:0}
 </style>
 </head>
 
 <body>
-<div class="container">
+<!-- 登录界面 -->
+<div class="login-box" id="loginBox">
+  <h2>管理员登录</h2>
+  <input type="password" id="pwd" placeholder="请输入管理密码">
+  <button onclick="login()">登录</button>
+</div>
+
+<!-- 管理界面（默认隐藏） -->
+<div class="container" id="adminBox" style="display:none">
   <h2>📝 信息管理后台</h2>
 
+  <!-- 搜索框：按 ID 快速定位 -->
+  <div class="search-box">
+    <input id="searchId" placeholder="输入 ID 搜索（如：7658）">
+    <button onclick="searchById()">🔍 搜索</button>
+  </div>
+
+  <input id="id" placeholder="广告 ID（如：7658，新建留空）" readonly>
   <input id="title" placeholder="标题（如：饭店招聘服务员）">
   <textarea id="content" rows="4" placeholder="详细内容"></textarea>
 
@@ -52,96 +73,185 @@ button{width:100%;padding:12px;background:#0d6efd;color:white;border:none;border
     <option value="临时工/日结">临时工/日结</option>
   </select>
 
-  <button onclick="add()">➕ 发布 / 更新信息</button>
+  <button onclick="save()">💾 保存（新建/更新）</button>
   <button class="danger" onclick="clearForm()">🧹 清空表单</button>
 
   <div id="list"></div>
 </div>
 
 <script>
-// 读取本地数据
-let data = JSON.parse(localStorage.getItem('adminData') || '[]')
-let editId = null
+// ======================
+// 管理员密码（可修改）
+// ======================
+const ADMIN_PWD = "888888";
 
-function renderList() {
-  let html = ''
-  data.forEach((item, i) => {
+// 登录
+function login() {
+  let val = document.getElementById("pwd").value;
+  if (val === ADMIN_PWD) {
+    document.getElementById("loginBox").style.display = "none";
+    document.getElementById("adminBox").style.display = "block";
+    loadData();
+  } else {
+    alert("密码错误");
+  }
+}
+
+// 加载数据（初始加载你之前的 data.json 内容）
+let data = [
+{"id":"6202","type":"招聘","industry":"其他","jobType":"全职长期","title":"包饺子女工/业务员/零活女工","content":"25-55岁，身体健康，计件多劳多得；业务员底薪+提成；零活女工1名，有满勤奖、年终奖。地址：天宝粮库(1路终点)"},
+{"id":"7028","type":"招聘","industry":"工厂/技工/普工","jobType":"全职长期","title":"工厂多岗位招聘","content":"电焊工、污水处理、锅炉工、普工、叉车、分拣、质检、仓管、电工。两班倒，缴保险，包吃住，班车接送。地址：伊通后范村"},
+{"id":"7634","type":"招聘","industry":"工厂/技工/普工","jobType":"全职长期","title":"丰达汽车线束招工","content":"操作工、检测员，18-55岁，计件3000-5000，免费食宿。地址：五一宏伟饭店对面"},
+{"id":"7805","type":"出租","industry":"房产/门市/公寓","jobType":"全职长期","title":"公寓出租+楼房出售","content":"市场北门东50米精装公寓，独立厨卫；阳光花园越层150平毛坯，带花园车库"},
+{"id":"7866","type":"招聘","industry":"家政/保洁/护工","jobType":"全职长期","title":"福康老年公寓","content":"招收自理/半自理/失能老人，800元起。另招服务员。地址：林业小区9号楼"},
+{"id":"7948","type":"招聘","industry":"其他","jobType":"全职长期","title":"主播/客服/店员","content":"无需露脸，宝妈可做，免费培训，可兼职。地址：北大桥建材市场"},
+{"id":"7979","type":"招聘","industry":"其他","jobType":"全职长期","title":"华瑞定制加工厂招工","content":"男女工，有无经验均可，工资面议。地址：伊通国际9号楼"},
+{"id":"8168","type":"服务/其他","industry":"其他","jobType":"全职长期","title":"西岭旧货市场","content":"回收出售饭店设备。地址：西岭加油站对面"},
+{"id":"8169","type":"服务/其他","industry":"其他","jobType":"全职长期","title":"二手空调回收专卖","content":"回收空调、制冷设备、饭店用品，冷库安装"},
+{"id":"8192","type":"招聘","industry":"其他","jobType":"全职长期","title":"青智宾馆招吧员","content":"上一休一"},
+{"id":"8194","type":"招聘","industry":"超市/百货/零售","jobType":"全职长期","title":"一鼎鲜生鲜超市招聘","content":"收银员、理货员、力工，含满勤，公休1天。地址：市场北门"},
+{"id":"8195","type":"招聘","industry":"餐饮/烧烤/火锅","jobType":"全职长期","title":"老东家烧鸽坊招聘","content":"服务员、凉菜、烧烤师傅、刷碗工、学徒"},
+{"id":"8208","type":"招聘","industry":"物流/快递/司机","jobType":"全职长期","title":"福运来商贸招聘","content":"司机、会计、导购、库管"},
+{"id":"8216","type":"招聘","industry":"餐饮/烧烤/火锅","jobType":"全职长期","title":"金达莱烤肉招聘","content":"服务员、钟点工"},
+{"id":"8219","type":"招聘","industry":"工厂/技工/普工","jobType":"全职长期","title":"伊特胶管招聘","content":"销售、核算、操作工、质检、文员、食堂，缴三险。地址：十中南行50米"},
+{"id":"8222","type":"招聘","industry":"其他","jobType":"全职长期","title":"老皮二手车招聘","content":"保洁、销售、学员，月休2天"},
+{"id":"8249","type":"招聘","industry":"其他","jobType":"全职长期","title":"龙雨集团招销售经理","content":"4500-8000+提成+五险一金，可培训"},
+{"id":"8252","type":"招聘","industry":"工厂/技工/普工","jobType":"全职长期","title":"食品厂招工","content":"30-50岁，计件3500-4000，供午餐。地址：乐山辛屯村"},
+{"id":"8286","type":"招聘","industry":"餐饮/烧烤/火锅","jobType":"全职长期","title":"龙凤烤鸭记招聘","content":"店长、厨师、服务员、保洁、小时工，公休2天"},
+{"id":"8291","type":"招聘","industry":"其他","jobType":"全职长期","title":"不露脸读稿主播","content":"居家，国学赛道，免费培训"},
+{"id":"8317","type":"招聘","industry":"餐饮/烧烤/火锅","jobType":"全职长期","title":"韩餐店招聘","content":"石板、厨师，包三餐，月休2天"},
+{"id":"8322","type":"招聘","industry":"工厂/技工/普工","jobType":"全职长期","title":"宏佳驰车轮招聘","content":"班长、电工、焊工、操作工、机修，4000-10000"},
+{"id":"8342","type":"招聘","industry":"餐饮/烧烤/火锅","jobType":"全职长期","title":"春妮馅饼店招聘","content":"后厨，55岁以内，底薪+满勤+年终奖"},
+{"id":"8353","type":"招聘","industry":"超市/百货/零售","jobType":"全职长期","title":"衢州鸭头招销售","content":"女性30-50岁，底薪+提成+饭补+满勤"},
+{"id":"8386","type":"招聘","industry":"工厂/技工/普工","jobType":"全职长期","title":"钰兴机械招聘","content":"车工、铣工、镗工、钳工、数控铣工"},
+{"id":"8387","type":"出兑/转让","industry":"餐饮/烧烤/火锅","jobType":"全职长期","title":"发哥面食店出兑","content":"带9个月房租、摊位客源、技术包会"},
+{"id":"8388","type":"服务/其他","industry":"家政/保洁/护工","jobType":"全职长期","title":"悦享夕阳老年托管","content":"招收失能、半自理老人"},
+{"id":"8389","type":"招聘","industry":"其他","jobType":"全职长期","title":"客服（可居家）","content":"全职/兼职，培训上岗，底薪+提成，可周结。地址：东方大厦"},
+{"id":"8390","type":"招聘","industry":"其他","jobType":"全职长期","title":"孙福家电招聘","content":"安装维修、销售主播，可学徒，薪资上不封顶"},
+{"id":"8391","type":"招聘","industry":"其他","jobType":"全职长期","title":"招聘客服","content":"底薪+满勤，月休4天，早九晚五。地址：五小学对面电商大厦"},
+{"id":"8392","type":"招聘","industry":"其他","jobType":"全职长期","title":"液化气站招更夫","content":"男58岁内，夜间巡逻，2300元，供吃住"},
+{"id":"8393","type":"招聘","industry":"物流/快递/司机","jobType":"全职长期","title":"快递公司招聘","content":"装卸、跟车、取件员，3000-6000"},
+{"id":"8394","type":"招聘","industry":"美容/美甲/养生","jobType":"全职长期","title":"亮甲售后招咨询师","content":"女30-50岁，培训上岗，月休4天，缴三险，3000-5000"},
+{"id":"8395","type":"招聘","industry":"餐饮/烧烤/火锅","jobType":"全职长期","title":"华鑫都烤鸭坊招聘","content":"后厨女工、烤鸭工，工资面议"}
+];
+
+// 从本地存储加载（如果有）
+const localData = localStorage.getItem('adminData');
+if (localData) {
+  data = JSON.parse(localData);
+}
+
+let editIndex = null;
+
+// 渲染列表
+function renderList(filteredData = data) {
+  let html = '';
+  filteredData.forEach((item, i) => {
     html += `
     <div class="card">
+      <div class="id">ID：${item.id}</div>
       <div class="title">${item.title}</div>
-      <div>${item.type} | ${item.industry} | ${item.jobType}</div>
+      <div class="tags">${item.type} | ${item.industry} | ${item.jobType}</div>
       <div class="btns">
         <button onclick="edit(${i})">编辑</button>
         <button onclick="del(${i})" class="danger">删除</button>
       </div>
-    </div>`
-  })
-  document.getElementById('list').innerHTML = html
+    </div>`;
+  });
+  document.getElementById("list").innerHTML = html;
 }
 
-// 添加/更新
-function add() {
-  let title = document.getElementById('title').value
-  let content = document.getElementById('content').value
-  let type = document.getElementById('type').value
-  let industry = document.getElementById('industry').value
-  let jobType = document.getElementById('jobType').value
+// 搜索：按 ID 定位
+function searchById() {
+  const searchId = document.getElementById("searchId").value.trim();
+  if (!searchId) {
+    renderList();
+    return;
+  }
+  const found = data.filter(item => item.id.toString() === searchId);
+  if (found.length === 0) {
+    alert("未找到该 ID！");
+    return;
+  }
+  renderList(found);
+  // 自动填充到表单
+  const index = data.findIndex(item => item.id.toString() === searchId);
+  edit(index);
+}
+
+// 编辑：加载到表单
+function edit(i) {
+  const item = data[i];
+  editIndex = i;
+  document.getElementById("id").value = item.id;
+  document.getElementById("title").value = item.title;
+  document.getElementById("content").value = item.content;
+  document.getElementById("type").value = item.type;
+  document.getElementById("industry").value = item.industry;
+  document.getElementById("jobType").value = item.jobType;
+}
+
+// 保存：新建或更新
+function save() {
+  const id = document.getElementById("id").value || Date.now();
+  const title = document.getElementById("title").value;
+  const content = document.getElementById("content").value;
+  const type = document.getElementById("type").value;
+  const industry = document.getElementById("industry").value;
+  const jobType = document.getElementById("jobType").value;
 
   if (!title || !content) {
-    alert('请填写完整')
-    return
+    alert("标题和内容不能为空！");
+    return;
   }
 
-  let item = { id: Date.now(), title, content, type, industry, jobType }
+  const newItem = { id, title, content, type, industry, jobType };
 
-  if (editId === null) {
-    data.push(item)
+  if (editIndex === null) {
+    // 新建
+    data.push(newItem);
   } else {
-    data[editId] = item
-    editId = null
+    // 更新：精准替换对应 ID
+    data[editIndex] = newItem;
+    editIndex = null;
   }
 
-  localStorage.setItem('adminData', JSON.stringify(data))
-  clearForm()
-  renderList()
-  exportData()
-}
-
-// 编辑
-function edit(i) {
-  let item = data[i]
-  document.getElementById('title').value = item.title
-  document.getElementById('content').value = item.content
-  document.getElementById('type').value = item.type
-  document.getElementById('industry').value = item.industry
-  document.getElementById('jobType').value = item.jobType
-  editId = i
+  localStorage.setItem("adminData", JSON.stringify(data));
+  clearForm();
+  renderList();
+  exportData();
 }
 
 // 删除
 function del(i) {
-  if (!confirm('确定删除？')) return
-  data.splice(i, 1)
-  localStorage.setItem('adminData', JSON.stringify(data))
-  renderList()
-  exportData()
+  if (!confirm("确定删除这条信息？")) return;
+  data.splice(i, 1);
+  localStorage.setItem("adminData", JSON.stringify(data));
+  renderList();
+  exportData();
 }
 
-// 导出成首页能用的 data.json 格式
+// 导出完整 JSON（包含所有数据，直接替换 data.json）
 function exportData() {
-  let json = JSON.stringify(data, null, 2)
-  console.log(json)
-  alert('已更新！复制下方数据到 data.json 即可同步首页：\n\n' + json)
+  const json = JSON.stringify(data, null, 2);
+  alert("复制下方所有内容，直接替换到 GitHub 的 data.json 中：\n\n" + json);
+  console.log(json);
 }
 
-// 清空
+// 清空表单
 function clearForm() {
-  document.getElementById('title').value = ''
-  document.getElementById('content').value = ''
-  editId = null
+  document.getElementById("id").value = "";
+  document.getElementById("title").value = "";
+  document.getElementById("content").value = "";
+  document.getElementById("searchId").value = "";
+  editIndex = null;
+  renderList();
 }
 
-renderList()
+// 初始加载
+function loadData() {
+  renderList();
+}
 </script>
 </body>
 </html>
