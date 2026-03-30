@@ -39,11 +39,11 @@ button{width:100%;padding:12px;background:#0d6efd;color:white;border:none;border
 
   <!-- 搜索框：按 ID 快速定位 -->
   <div class="search-box">
-    <input id="searchId" placeholder="输入 ID 搜索（如：7658）">
+    <input id="searchId" placeholder="输入 ID 搜索（如：1234、1234-1）">
     <button onclick="searchById()">🔍 搜索</button>
   </div>
 
-  <input id="id" placeholder="广告 ID（如：7658，新建留空）" readonly>
+  <input id="id" placeholder="广告 ID（可自定义：如 1234、1234-1）">
   <input id="title" placeholder="标题（如：饭店招聘服务员）">
   <textarea id="content" rows="4" placeholder="详细内容"></textarea>
 
@@ -74,6 +74,7 @@ button{width:100%;padding:12px;background:#0d6efd;color:white;border:none;border
   </select>
 
   <button onclick="save()">💾 保存（新建/更新）</button>
+  <button onclick="saveAsNewVersion()">➕ 另存为新版本（生成 1234-1）</button>
   <button class="danger" onclick="clearForm()">🧹 清空表单</button>
 
   <div id="list"></div>
@@ -191,24 +192,24 @@ function edit(i) {
   document.getElementById("jobType").value = item.jobType;
 }
 
-// 保存：新建或更新
+// 保存：新建或更新（允许自定义 ID）
 function save() {
-  const id = document.getElementById("id").value || Date.now();
+  const id = document.getElementById("id").value;
   const title = document.getElementById("title").value;
   const content = document.getElementById("content").value;
   const type = document.getElementById("type").value;
   const industry = document.getElementById("industry").value;
   const jobType = document.getElementById("jobType").value;
 
-  if (!title || !content) {
-    alert("标题和内容不能为空！");
+  if (!id || !title || !content) {
+    alert("ID、标题和内容不能为空！");
     return;
   }
 
   const newItem = { id, title, content, type, industry, jobType };
 
   if (editIndex === null) {
-    // 新建
+    // 新建：直接添加
     data.push(newItem);
   } else {
     // 更新：精准替换对应 ID
@@ -220,6 +221,40 @@ function save() {
   clearForm();
   renderList();
   exportData();
+}
+
+// 另存为新版本：自动生成 1234-1、1234-2
+function saveAsNewVersion() {
+  const oldId = document.getElementById("id").value;
+  if (!oldId) {
+    alert("请先编辑一条记录，再生成新版本！");
+    return;
+  }
+
+  // 计算版本号
+  let version = 1;
+  const baseId = oldId.replace(/-(\d+)$/, (match, num) => {
+    version = parseInt(num) + 1;
+    return "";
+  });
+  const newId = `${baseId || oldId}-${version}`;
+
+  // 复制原内容，只改 ID
+  const newItem = {
+    id: newId,
+    title: document.getElementById("title").value,
+    content: document.getElementById("content").value,
+    type: document.getElementById("type").value,
+    industry: document.getElementById("industry").value,
+    jobType: document.getElementById("jobType").value
+  };
+
+  data.push(newItem);
+  localStorage.setItem("adminData", JSON.stringify(data));
+  clearForm();
+  renderList();
+  exportData();
+  alert(`已生成新版本：${newId}`);
 }
 
 // 删除
