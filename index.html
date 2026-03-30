@@ -2,407 +2,175 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>伊通便民信息平台</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>伊通便民信息平台</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;font-family:"微软雅黑",sans-serif;}
-  body{background:#f5f7fa;padding:12px;}
-  .container{max-width:750px;margin:0 auto;background:#fff;border-radius:14px;padding:16px;box-shadow:0 2px 10px rgba(0,0,0,0.05);}
-  .title{text-align:center;font-size:20px;color:#d63031;margin-bottom:10px;}
-  .notice{background:#fff8e1;color:#f57f17;padding:10px 12px;border-radius:10px;text-align:center;font-size:14px;margin-bottom:16px;line-height:1.5;}
-  
-  .filter-group{margin-bottom:14px;}
-  .filter-label{font-size:13px;color:#666;margin-bottom:6px;}
-  .filter-btns{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px;}
-  .filter-btns button{padding:6px 11px;border-radius:20px;border:none;background:#f1f3f5;color:#333;font-size:14px;cursor:pointer;white-space:nowrap;}
-  .filter-btns button.active{background:#2d8bfd;color:#fff;}
+    *{box-sizing:border-box;}
+    body{margin:0;padding:10px;background:#f5f7fa;font-family:Arial,"微软雅黑",sans-serif;}
+    .page{max-width:750px;margin:0 auto;background:#fff;border-radius:12px;padding:15px;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
+    .header{text-align:center;margin-bottom:15px;}
+    .header h1{font-size:20px;color:#d32f2f;margin:0;}
+    .tip{background:#fff8e1;color:#f57f17;padding:10px;border-radius:8px;text-align:center;font-size:14px;margin-bottom:15px;line-height:1.5;}
 
-  .card{border:1px solid #eee;border-radius:12px;padding:14px;margin-bottom:12px;position:relative;}
-  .copy-btn{position:absolute;top:10px;right:12px;background:#2d8bfd;color:#fff;border:none;border-radius:8px;padding:4px 8px;font-size:12px;cursor:pointer;}
-  .card-id{font-size:13px;color:#999;margin-bottom:4px;}
-  .card-title{font-size:16px;font-weight:bold;margin-bottom:6px;color:#222;}
-  .card-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;}
-  .card-tags span{background:#f1f3f5;color:#555;font-size:12px;padding:3px 8px;border-radius:10px;}
-  .card-content{font-size:14px;line-height:1.6;color:#333;}
+    /* 筛选栏 */
+    .filter-bar{margin-bottom:15px;}
+    .filter-title{font-size:13px;color:#666;margin-bottom:6px;}
+    .filter-btns{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+    .filter-btns button{padding:6px 12px;border-radius:20px;border:none;background:#e9ecef;color:#333;font-size:14px;cursor:pointer;}
+    .filter-btns button.active{background:#0d6efd;color:#fff;}
 
-  .footer{text-align:center;font-size:12px;color:#999;margin-top:16px;}
+    /* 卡片 */
+    .card{border:1px solid #e9ecef;border-radius:10px;padding:12px;margin-bottom:10px;position:relative;background:#fff;}
+    .copy-btn{position:absolute;top:10px;right:10px;background:#0d6efd;color:#fff;border:none;border-radius:6px;padding:3px 6px;font-size:12px;cursor:pointer;}
+    .card-no{font-size:12px;color:#999;margin-bottom:4px;}
+    .card-title{font-weight:bold;font-size:15px;margin-bottom:6px;}
+    .card-tags{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;}
+    .card-tags span{background:#f1f3f5;color:#555;font-size:12px;padding:2px 6px;border-radius:10px;}
+    .card-content{font-size:14px;line-height:1.5;color:#333;}
+
+    .footer{text-align:center;font-size:12px;color:#999;margin-top:15px;}
 </style>
 </head>
 
 <body>
-<div class="container">
-  <div class="title">伊通本地便民信息平台</div>
-  <div class="notice">如需商家联系方式，请添加微信：__________<br>（请在此填写你的微信）</div>
-
-  <!-- 1. 信息大类 -->
-  <div class="filter-group">
-    <div class="filter-label">信息大类</div>
-    <div class="filter-btns" data-target="type">
-      <button class="active" data-val="all">全部</button>
-      <button data-val="招聘">招聘</button>
-      <button data-val="出租">出租</button>
-      <button data-val="出售">出售</button>
-      <button data-val="出兑/转让">出兑/转让</button>
-      <button data-val="服务/其他">服务/其他</button>
+<div class="page">
+    <div class="header">
+        <h1>伊通本地便民信息平台</h1>
     </div>
-  </div>
 
-  <!-- 2. 行业类型 -->
-  <div class="filter-group">
-    <div class="filter-label">行业类型</div>
-    <div class="filter-btns" data-target="industry">
-      <button class="active" data-val="all">全部</button>
-      <button data-val="餐饮/烧烤/火锅">餐饮/烧烤</button>
-      <button data-val="超市/百货/零售">超市/零售</button>
-      <button data-val="美容/美甲/养生">美容/养生</button>
-      <button data-val="物流/快递/司机">物流/司机</button>
-      <button data-val="工厂/技工/普工">工厂/技工</button>
-      <button data-val="家政/保洁/护工">家政/护工</button>
-      <button data-val="房产/门市/公寓">房产/门市</button>
-      <button data-val="其他">其他</button>
+    <div class="tip">
+        如需商家联系方式<br>请添加微信：__________
     </div>
-  </div>
 
-  <!-- 3. 用工类型 -->
-  <div class="filter-group">
-    <div class="filter-label">用工类型</div>
-    <div class="filter-btns" data-target="jobType">
-      <button class="active" data-val="all">全部</button>
-      <button data-val="全职长期">全职长期</button>
-      <button data-val="兼职/小时工">兼职/小时工</button>
-      <button data-val="学徒">学徒</button>
-      <button data-val="临时工/日结">临时工/日结</button>
+    <!-- 1 信息大类 -->
+    <div class="filter-bar">
+        <div class="filter-title">信息大类</div>
+        <div class="filter-btns" data-target="type">
+            <button class="active" data-val="all">全部</button>
+            <button data-val="招聘">招聘</button>
+            <button data-val="出租">出租</button>
+            <button data-val="出售">出售</button>
+            <button data-val="出兑/转让">出兑/转让</button>
+            <button data-val="服务/其他">服务/其他</button>
+        </div>
     </div>
-  </div>
 
-  <!-- 列表区域 -->
-  <div id="list"></div>
+    <!-- 2 行业类型 -->
+    <div class="filter-bar">
+        <div class="filter-title">行业类型</div>
+        <div class="filter-btns" data-target="industry">
+            <button class="active" data-val="all">全部</button>
+            <button data-val="餐饮/烧烤/火锅">餐饮/烧烤</button>
+            <button data-val="超市/百货/零售">超市/零售</button>
+            <button data-val="美容/美甲/养生">美容/养生</button>
+            <button data-val="物流/快递/司机">物流/司机</button>
+            <button data-val="工厂/技工/普工">工厂/技工</button>
+            <button data-val="家政/保洁/护工">家政/护工</button>
+            <button data-val="房产/门市/公寓">房产/门市</button>
+            <button data-val="其他">其他</button>
+        </div>
+    </div>
 
-  <div class="footer">每日更新 · 真实可靠 · 便民服务</div>
+    <!-- 3 用工类型 -->
+    <div class="filter-bar">
+        <div class="filter-title">用工类型</div>
+        <div class="filter-btns" data-target="jobType">
+            <button class="active" data-val="all">全部</button>
+            <button data-val="全职长期">全职长期</button>
+            <button data-val="兼职/小时工">兼职/小时工</button>
+            <button data-val="学徒">学徒</button>
+            <button data-val="临时工/日结">临时工/日结</button>
+        </div>
+    </div>
+
+    <!-- 列表 -->
+    <div id="list"></div>
+
+    <div class="footer">每日更新 · 真实可靠 · 便民服务</div>
 </div>
 
 <script>
-// 数据（已按你的分类整理完成）
 const data = [
-{
-  id:"6202",
-  type:"招聘",
-  industry:"其他",
-  jobType:"全职长期",
-  title:"招聘包饺子女工 / 业务员 / 零活女工",
-  content:"25-55岁，身体健康，计件工资多劳多得；业务员底薪+提成；干零活女生1名。均有满勤奖、年终奖。地址：天宝粮库(1路终点)"
-},
-{
-  id:"7028",
-  type:"招聘",
-  industry:"工厂/技工/普工",
-  jobType:"全职长期",
-  title:"工厂多岗位招聘",
-  content:"维修电焊工、污水处理工、锅炉工、普工、叉车司机、平台分拣、质检员、仓管、电工。能接受两班倒，上岗缴保险，包吃包住，县内班车接送。地址：伊通后范村"
-},
-{
-  id:"7634",
-  type:"招聘",
-  industry:"工厂/技工/普工",
-  jobType:"全职长期",
-  title:"丰达汽车线束招工",
-  content:"男女操作工、检测员，18-55岁，计件工资3000-5000元，公司免费食宿。地址：伊通五一宏伟饭店对面"
-},
-{
-  id:"7805",
-  type:"出租",
-  industry:"房产/门市/公寓",
-  jobType:"全职长期",
-  title:"公寓出租 + 楼房出售",
-  content:"市场北门邮政局东50米，精装公寓，独立厨卫，租期灵活；阳光花园越层一二楼150余平毛坯，带花园车库。"
-},
-{
-  id:"7866",
-  type:"招聘",
-  industry:"家政/保洁/护工",
-  jobType:"全职长期",
-  title:"福康老年公寓招聘",
-  content:"长年招收自理、半自理、失能老人，包吃住、洗衣、理发等，能自理老人800元起。另招服务员。地址：林业小区9号楼"
-},
-{
-  id:"7948",
-  type:"招聘",
-  industry:"其他",
-  jobType:"全职长期",
-  title:"主播 / 客服 / 店员",
-  content:"有经验优先，口齿伶俐，无需露脸，宝妈可应聘，免费培训，支持兼职。地址：北大桥建材市场。"
-},
-{
-  id:"7979",
-  type:"招聘",
-  industry:"其他",
-  jobType:"全职长期",
-  title:"华瑞定制加工厂招工",
-  content:"招男女工，头脑灵活、勤劳肯干，有无经验均可，工资面议。主营全屋定制、榻榻米、背景墙等。地址：伊通国际9号楼。"
-},
-{
-  id:"8168",
-  type:"服务/其他",
-  industry:"其他",
-  jobType:"全职长期",
-  title:"西岭旧货市场",
-  content:"回收、出售饭店各类设备。地址：西岭加油站对面。"
-},
-{
-  id:"8169",
-  type:"服务/其他",
-  industry:"其他",
-  jobType:"全职长期",
-  title:"二手空调回收专卖",
-  content:"回收空调、制冷设备、饭店宾馆用品，承接冷库安装。"
-},
-{
-  id:"8192",
-  type:"招聘",
-  industry:"其他",
-  jobType:"全职长期",
-  title:"青智宾馆招吧员",
-  content:"工作时间：上一休一。"
-},
-{
-  id:"8194",
-  type:"招聘",
-  industry:"超市/百货/零售",
-  jobType:"全职长期",
-  title:"一鼎鲜生鲜超市招聘",
-  content:"收银员、理货员、男力工，薪资含满勤，每月公休1天。地址：市场北门。"
-},
-{
-  id:"8195",
-  type:"招聘",
-  industry:"餐饮/烧烤/火锅",
-  jobType:"全职长期",
-  title:"老东家烧鸽坊招聘",
-  content:"服务员、服务生、凉菜师傅、烧烤师傅、刷碗工、学徒工，薪资优厚，带薪公休。"
-},
-{
-  id:"8208",
-  type:"招聘",
-  industry:"物流/快递/司机",
-  jobType:"全职长期",
-  title:"福运来商贸招聘",
-  content:"送货司机、会计、超市导购、库管，要求有经验、有责任心。"
-},
-{
-  id:"8216",
-  type:"招聘",
-  industry:"餐饮/烧烤/火锅",
-  jobType:"全职长期",
-  title:"金达莱炭火烤肉招聘",
-  content:"服务员，底薪+满勤，每月公休1天；另招钟点工。"
-},
-{
-  id:"8219",
-  type:"招聘",
-  industry:"工厂/技工/普工",
-  jobType:"全职长期",
-  title:"伊特胶管公司招聘",
-  content:"销售、核算员、操作工、质检员、文员、食堂人员，录用缴纳三险。地址：十中南行50米。"
-},
-{
-  id:"8222",
-  type:"招聘",
-  industry:"其他",
-  jobType:"全职长期",
-  title:"老皮二手车招聘",
-  content:"保洁做饭人员、销售顾问、二手车学员，每月休息2天。"
-},
-{
-  id:"8249",
-  type:"招聘",
-  industry:"其他",
-  jobType:"全职长期",
-  title:"龙雨集团招销售经理",
-  content:"月薪4500-8000+提成+五险一金，有无经验均可，统一培训。地址：九开线与长伊公路交汇处。"
-},
-{
-  id:"8252",
-  type:"招聘",
-  industry:"工厂/技工/普工",
-  jobType:"全职长期",
-  title:"食品厂长期招工",
-  content:"30-50周岁，手脚麻利，提供午餐，计件工资3500-4000元。地址：乐山辛屯村高家沟。"
-},
-{
-  id:"8286",
-  type:"招聘",
-  industry:"餐饮/烧烤/火锅",
-  jobType:"全职长期",
-  title:"龙凤烤鸭记中餐厅招聘",
-  content:"店长、经理、厨师、凉菜、改刀、服务员、传菜、保洁、小时工，带薪公休+满勤，定期团建。"
-},
-{
-  id:"8291",
-  type:"招聘",
-  industry:"其他",
-  jobType:"全职长期",
-  title:"不露脸读稿主播",
-  content:"居家即可，国学赛道，免费培训，日入100-1000元。"
-},
-{
-  id:"8317",
-  type:"招聘",
-  industry:"餐饮/烧烤/火锅",
-  jobType:"全职长期",
-  title:"韩餐店招聘",
-  content:"石板师傅、厨师，工作时间8:30-20:30，包三餐，每月公休2天。"
-},
-{
-  id:"8322",
-  type:"招聘",
-  industry:"工厂/技工/普工",
-  jobType:"全职长期",
-  title:"宏佳驰车轮公司招聘",
-  content:"班长、电工、焊工、自动化、一线工人、机修模具工，薪资4000-10000元。"
-},
-{
-  id:"8342",
-  type:"招聘",
-  industry:"餐饮/烧烤/火锅",
-  jobType:"全职长期",
-  title:"春妮馅饼店招聘",
-  content:"后厨工作人员，55岁以内，早班工作制，底薪+满勤+年终奖。"
-},
-{
-  id:"8353",
-  type:"招聘",
-  industry:"超市/百货/零售",
-  jobType:"全职长期",
-  title:"衢州鸭头招销售",
-  content:"女性30-50岁，底薪+提成+饭补+满勤，薪资优厚。"
-},
-{
-  id:"8386",
-  type:"招聘",
-  industry:"工厂/技工/普工",
-  jobType:"全职长期",
-  title:"钰兴机械招聘",
-  content:"车工、铣工、镗工、钳工、数控铣工，熟练工优先。"
-},
-{
-  id:"8387",
-  type:"出兑/转让",
-  industry:"餐饮/烧烤/火锅",
-  jobType:"全职长期",
-  title:"发哥面食店旺店出兑",
-  content:"带9个月房租、两处固定摊位客源、店铺回头客，带技术包教包会。"
-},
-{
-  id:"8388",
-  type:"服务/其他",
-  industry:"家政/保洁/护工",
-  jobType:"全职长期",
-  title:"悦享夕阳老年托管",
-  content:"长年招收不能自理、半自理、失能老人，专业照护。"
-},
-{
-  id:"8389",
-  type:"招聘",
-  industry:"其他",
-  jobType:"全职长期",
-  title:"客服招聘（可居家）",
-  content:"全职/兼职/陪读宝妈均可，培训一天上岗，底薪+满勤+高提成，可周结/月结。地址：东方大厦。"
-},
-{
-  id:"8390",
-  type:"招聘",
-  industry:"其他",
-  jobType:"全职长期",
-  title:"孙福家电招聘",
-  content:"售后安装维修师傅、销售主播，可边学边干，薪资上不封顶。地址：万喜家园北口。"
-},
-{
-  id:"8391",
-  type:"招聘",
-  industry:"其他",
-  jobType:"全职长期",
-  title:"招聘客服",
-  content:"底薪+满勤，月休4天，早九晚五，添加好友有额外奖励。地址：五小学对面电商大厦。"
-},
-{
-  id:"8392",
-  type:"招聘",
-  industry:"其他",
-  jobType:"全职长期",
-  title:"液化气站招更夫",
-  content:"男性58岁以内，夜间工作，每小时巡逻，薪资2300元，供吃住。"
-},
-{
-  id:"8393",
-  type:"招聘",
-  industry:"物流/快递/司机",
-  jobType:"全职长期",
-  title:"快递公司招聘",
-  content:"跟车装卸、装卸工、叠袋工、取件员，月薪3000-6000元。"
-},
-{
-  id:"8394",
-  type:"招聘",
-  industry:"美容/美甲/养生",
-  jobType:"全职长期",
-  title:"亮甲售后招咨询师",
-  content:"女性30-50岁，免费培训，月休4天，早八晚五，缴纳三险，薪资3000-5000元。"
-},
-{
-  id:"8395",
-  type:"招聘",
-  industry:"餐饮/烧烤/火锅",
-  jobType:"全职长期",
-  title:"华鑫都烤鸭坊招聘",
-  content:"后厨女工、烤鸭工，干净利索，工资面议。地址：民族大厦对面。"
-}
+{id:"6202",type:"招聘",industry:"其他",jobType:"全职长期",title:"包饺子女工/业务员/零活女工",content:"25-55岁，身体健康，计件多劳多得；业务员底薪+提成；零活女工1名，有满勤奖、年终奖。地址：天宝粮库(1路终点)"},
+{id:"7028",type:"招聘",industry:"工厂/技工/普工",jobType:"全职长期",title:"工厂多岗位招聘",content:"电焊工、污水处理、锅炉工、普工、叉车、分拣、质检、仓管、电工。两班倒，缴保险，包吃住，班车接送。地址：伊通后范村"},
+{id:"7634",type:"招聘",industry:"工厂/技工/普工",jobType:"全职长期",title:"丰达汽车线束招工",content:"操作工、检测员，18-55岁，计件3000-5000，免费食宿。地址：五一宏伟饭店对面"},
+{id:"7805",type:"出租",industry:"房产/门市/公寓",jobType:"全职长期",title:"公寓出租+楼房出售",content:"市场北门东50米精装公寓，独立厨卫；阳光花园越层150平毛坯，带花园车库"},
+{id:"7866",type:"招聘",industry:"家政/保洁/护工",jobType:"全职长期",title:"福康老年公寓",content:"招收自理/半自理/失能老人，800元起。另招服务员。地址：林业小区9号楼"},
+{id:"7948",type:"招聘",industry:"其他",jobType:"全职长期",title:"主播/客服/店员",content:"无需露脸，宝妈可做，免费培训，可兼职。地址：北大桥建材市场"},
+{id:"7979",type:"招聘",industry:"其他",jobType:"全职长期",title:"华瑞定制加工厂招工",content:"男女工，有无经验均可，工资面议。地址：伊通国际9号楼"},
+{id:"8168",type:"服务/其他",industry:"其他",jobType:"全职长期",title:"西岭旧货市场",content:"回收出售饭店设备。地址：西岭加油站对面"},
+{id:"8169",type:"服务/其他",industry:"其他",jobType:"全职长期",title:"二手空调回收专卖",content:"回收空调、制冷设备、饭店用品，冷库安装"},
+{id:"8192",type:"招聘",industry:"其他",jobType:"全职长期",title:"青智宾馆招吧员",content:"上一休一"},
+{id:"8194",type:"招聘",industry:"超市/百货/零售",jobType:"全职长期",title:"一鼎鲜生鲜超市招聘",content:"收银员、理货员、力工，含满勤，公休1天。地址：市场北门"},
+{id:"8195",type:"招聘",industry:"餐饮/烧烤/火锅",jobType:"全职长期",title:"老东家烧鸽坊招聘",content:"服务员、凉菜、烧烤师傅、刷碗工、学徒"},
+{id:"8208",type:"招聘",industry:"物流/快递/司机",jobType:"全职长期",title:"福运来商贸招聘",content:"司机、会计、导购、库管"},
+{id:"8216",type:"招聘",industry:"餐饮/烧烤/火锅",jobType:"全职长期",title:"金达莱烤肉招聘",content:"服务员、钟点工"},
+{id:"8219",type:"招聘",industry:"工厂/技工/普工",jobType:"全职长期",title:"伊特胶管招聘",content:"销售、核算、操作工、质检、文员、食堂，缴三险。地址：十中南行50米"},
+{id:"8222",type:"招聘",industry:"其他",jobType:"全职长期",title:"老皮二手车招聘",content:"保洁、销售、学员，月休2天"},
+{id:"8249",type:"招聘",industry:"其他",jobType:"全职长期",title:"龙雨集团招销售经理",content:"4500-8000+提成+五险一金，可培训"},
+{id:"8252",type:"招聘",industry:"工厂/技工/普工",jobType:"全职长期",title:"食品厂招工",content:"30-50岁，计件3500-4000，供午餐。地址：乐山辛屯村"},
+{id:"8286",type:"招聘",industry:"餐饮/烧烤/火锅",jobType:"全职长期",title:"龙凤烤鸭记招聘",content:"店长、厨师、服务员、保洁、小时工，公休2天"},
+{id:"8291",type:"招聘",industry:"其他",jobType:"全职长期",title:"不露脸读稿主播",content:"居家，国学赛道，免费培训"},
+{id:"8317",type:"招聘",industry:"餐饮/烧烤/火锅",jobType:"全职长期",title:"韩餐店招聘",content:"石板、厨师，包三餐，月休2天"},
+{id:"8322",type:"招聘",industry:"工厂/技工/普工",jobType:"全职长期",title:"宏佳驰车轮招聘",content:"班长、电工、焊工、操作工、机修，4000-10000"},
+{id:"8342",type:"招聘",industry:"餐饮/烧烤/火锅",jobType:"全职长期",title:"春妮馅饼店招聘",content:"后厨，55岁以内，底薪+满勤+年终奖"},
+{id:"8353",type:"招聘",industry:"超市/百货/零售",jobType:"全职长期",title:"衢州鸭头招销售",content:"女性30-50岁，底薪+提成+饭补+满勤"},
+{id:"8386",type:"招聘",industry:"工厂/技工/普工",jobType:"全职长期",title:"钰兴机械招聘",content:"车工、铣工、镗工、钳工、数控铣工"},
+{id:"8387",type:"出兑/转让",industry:"餐饮/烧烤/火锅",jobType:"全职长期",title:"发哥面食店出兑",content:"带9个月房租、摊位客源、技术包会"},
+{id:"8388",type:"服务/其他",industry:"家政/保洁/护工",jobType:"全职长期",title:"悦享夕阳老年托管",content:"招收失能、半自理老人"},
+{id:"8389",type:"招聘",industry:"其他",jobType:"全职长期",title:"客服（可居家）",content:"全职/兼职，培训上岗，底薪+提成，可周结。地址：东方大厦"},
+{id:"8390",type:"招聘",industry:"其他",jobType:"全职长期",title:"孙福家电招聘",content:"安装维修、销售主播，可学徒，薪资上不封顶"},
+{id:"8391",type:"招聘",industry:"其他",jobType:"全职长期",title:"招聘客服",content:"底薪+满勤，月休4天，早九晚五。地址：五小学对面电商大厦"},
+{id:"8392",type:"招聘",industry:"其他",jobType:"全职长期",title:"液化气站招更夫",content:"男58岁内，夜间巡逻，2300元，供吃住"},
+{id:"8393",type:"招聘",industry:"物流/快递/司机",jobType:"全职长期",title:"快递公司招聘",content:"装卸、跟车、取件员，3000-6000"},
+{id:"8394",type:"招聘",industry:"美容/美甲/养生",jobType:"全职长期",title:"亮甲售后招咨询师",content:"女30-50岁，培训上岗，月休4天，缴三险，3000-5000"},
+{id:"8395",type:"招聘",industry:"餐饮/烧烤/火锅",jobType:"全职长期",title:"华鑫都烤鸭坊招聘",content:"后厨女工、烤鸭工，工资面议"}
 ];
 
-// 筛选逻辑
 let filter = { type:"all", industry:"all", jobType:"all" };
+
 function render(){
-  let list = data.filter(item => 
-    (filter.type === "all" || item.type === filter.type) &&
-    (filter.industry === "all" || item.industry === filter.industry) &&
-    (filter.jobType === "all" || item.jobType === filter.jobType)
-  );
-  let html = "";
-  list.forEach(item => {
-    let text = `${item.title} ${item.content}`;
-    html += `
-    <div class="card">
-      <button class="copy-btn" onclick="copy('${text.replace(/'/g,"")}')">复制</button>
-      <div class="card-id">编号：${item.id}</div>
-      <div class="card-title">${item.title}</div>
-      <div class="card-tags">
-        <span>${item.type}</span>
-        <span>${item.industry}</span>
-        <span>${item.jobType}</span>
-      </div>
-      <div class="card-content">${item.content}</div>
-    </div>`;
-  });
-  document.getElementById("list").innerHTML = html;
+    let list = data.filter(item => 
+        (filter.type === "all" || item.type === filter.type) &&
+        (filter.industry === "all" || item.industry === filter.industry) &&
+        (filter.jobType === "all" || item.jobType === filter.jobType)
+    );
+    let html = "";
+    list.forEach(item => {
+        let txt = `${item.title} ${item.content}`;
+        html += `
+        <div class="card">
+            <button class="copy-btn" onclick="copy('${txt.replace(/'/g, "")}')">复制</button>
+            <div class="card-no">编号：${item.id}</div>
+            <div class="card-title">${item.title}</div>
+            <div class="card-tags">
+                <span>${item.type}</span>
+                <span>${item.industry}</span>
+                <span>${item.jobType}</span>
+            </div>
+            <div class="card-content">${item.content}</div>
+        </div>`;
+    });
+    document.getElementById("list").innerHTML = html;
 }
 
-// 复制功能
 function copy(text){
-  navigator.clipboard.writeText(text).then(()=>alert("已复制本条信息"));
+    navigator.clipboard.writeText(text).then(()=>alert("已复制本条信息"));
 }
 
-// 绑定按钮
-document.querySelectorAll(".filter-btns button").forEach(btn => {
-  btn.addEventListener("click",()=>{
-    let group = btn.parentElement.dataset.target;
-    let val = btn.dataset.val;
-    filter[group] = val;
-    btn.parentElement.querySelectorAll("button").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    render();
-  });
+document.querySelectorAll(".filter-btns").forEach(group => {
+    group.querySelectorAll("button").forEach(btn => {
+        btn.addEventListener("click", () => {
+            let target = group.dataset.target;
+            let val = btn.dataset.val;
+            filter[target] = val;
+            group.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            render();
+        });
+    });
 });
 
-// 初始渲染
 render();
 </script>
 </body>
