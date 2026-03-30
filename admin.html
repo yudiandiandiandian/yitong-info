@@ -12,6 +12,7 @@ h2{text-align:center;color:#d32f2f;margin-top:0}
 input,textarea,select{width:100%;padding:10px;margin:6px 0;border:1px solid #ddd;border-radius:8px;font-size:14px}
 button{width:100%;padding:12px;background:#0d6efd;color:white;border:none;border-radius:8px;font-size:16px;margin-top:10px}
 .danger{background:#dc3545}
+.success{background:#28a745}
 .card{border:1px solid #eee;border-radius:8px;padding:12px;margin-top:10px}
 .card .title{font-weight:bold}
 .card .id{font-size:12px;color:#666}
@@ -73,8 +74,8 @@ button{width:100%;padding:12px;background:#0d6efd;color:white;border:none;border
     <option value="临时工/日结">临时工/日结</option>
   </select>
 
-  <button onclick="save()">💾 保存（新建/更新）</button>
-  <button onclick="saveAsNewVersion()">➕ 另存为新版本（生成 1234-1）</button>
+  <button onclick="save()">💾 保存（覆盖原数据）</button>
+  <button class="success" onclick="copyAllData()">📋 一键复制全部数据</button>
   <button class="danger" onclick="clearForm()">🧹 清空表单</button>
 
   <div id="list"></div>
@@ -98,7 +99,7 @@ function login() {
   }
 }
 
-// 加载数据（初始加载你之前的 data.json 内容）
+// 初始数据（你之前的广告）
 let data = [
 {"id":"6202","type":"招聘","industry":"其他","jobType":"全职长期","title":"包饺子女工/业务员/零活女工","content":"25-55岁，身体健康，计件多劳多得；业务员底薪+提成；零活女工1名，有满勤奖、年终奖。地址：天宝粮库(1路终点)"},
 {"id":"7028","type":"招聘","industry":"工厂/技工/普工","jobType":"全职长期","title":"工厂多岗位招聘","content":"电焊工、污水处理、锅炉工、普工、叉车、分拣、质检、仓管、电工。两班倒，缴保险，包吃住，班车接送。地址：伊通后范村"},
@@ -192,7 +193,7 @@ function edit(i) {
   document.getElementById("jobType").value = item.jobType;
 }
 
-// 保存：新建或更新（允许自定义 ID）
+// 保存：直接覆盖原数据（原ID被删除，新ID生效）
 function save() {
   const id = document.getElementById("id").value;
   const title = document.getElementById("title").value;
@@ -208,53 +209,29 @@ function save() {
 
   const newItem = { id, title, content, type, industry, jobType };
 
-  if (editIndex === null) {
-    // 新建：直接添加
-    data.push(newItem);
-  } else {
-    // 更新：精准替换对应 ID
+  if (editIndex !== null) {
+    // 编辑模式：直接替换原数据，原ID彻底消失
     data[editIndex] = newItem;
     editIndex = null;
+  } else {
+    // 新建模式：添加新数据
+    data.push(newItem);
   }
 
   localStorage.setItem("adminData", JSON.stringify(data));
   clearForm();
   renderList();
-  exportData();
+  alert("保存成功！原数据已被覆盖");
 }
 
-// 另存为新版本：自动生成 1234-1、1234-2
-function saveAsNewVersion() {
-  const oldId = document.getElementById("id").value;
-  if (!oldId) {
-    alert("请先编辑一条记录，再生成新版本！");
-    return;
-  }
-
-  // 计算版本号
-  let version = 1;
-  const baseId = oldId.replace(/-(\d+)$/, (match, num) => {
-    version = parseInt(num) + 1;
-    return "";
+// 一键复制全部数据（直接复制完整JSON，可直接替换到信息界面）
+function copyAllData() {
+  const jsonStr = JSON.stringify(data, null, 2);
+  navigator.clipboard.writeText(jsonStr).then(() => {
+    alert("✅ 全部数据已复制到剪贴板！直接粘贴到 data.json 即可");
+  }).catch(err => {
+    alert("❌ 复制失败：" + err);
   });
-  const newId = `${baseId || oldId}-${version}`;
-
-  // 复制原内容，只改 ID
-  const newItem = {
-    id: newId,
-    title: document.getElementById("title").value,
-    content: document.getElementById("content").value,
-    type: document.getElementById("type").value,
-    industry: document.getElementById("industry").value,
-    jobType: document.getElementById("jobType").value
-  };
-
-  data.push(newItem);
-  localStorage.setItem("adminData", JSON.stringify(data));
-  clearForm();
-  renderList();
-  exportData();
-  alert(`已生成新版本：${newId}`);
 }
 
 // 删除
@@ -263,14 +240,6 @@ function del(i) {
   data.splice(i, 1);
   localStorage.setItem("adminData", JSON.stringify(data));
   renderList();
-  exportData();
-}
-
-// 导出完整 JSON（包含所有数据，直接替换 data.json）
-function exportData() {
-  const json = JSON.stringify(data, null, 2);
-  alert("复制下方所有内容，直接替换到 GitHub 的 data.json 中：\n\n" + json);
-  console.log(json);
 }
 
 // 清空表单
