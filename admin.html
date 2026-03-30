@@ -1,44 +1,147 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>管理后台</title>
-    <style>
-        body{max-width:700px; margin:20px auto; padding:0 10px; font-family:微软雅黑;}
-        .login-box, .main-box{background:white; padding:20px; border-radius:10px; box-shadow:0 0 10px #ccc;}
-        input,textarea,button{width:100%; margin:8px 0; padding:10px; font-size:16px; box-sizing:border-box;}
-        button{background:#0d6efd; color:white; border:none; border-radius:5px; cursor:pointer;}
-        .hidden{display:none;}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>信息管理后台</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:15px;background:#f5f7fa;font-family:微软雅黑}
+.container{max-width:700px;margin:auto;background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,0.06)}
+h2{text-align:center;color:#d32f2f;margin-top:0}
+input,textarea,select{width:100%;padding:10px;margin:6px 0;border:1px solid #ddd;border-radius:8px;font-size:14px}
+button{width:100%;padding:12px;background:#0d6efd;color:white;border:none;border-radius:8px;font-size:16px;margin-top:10px}
+.danger{background:#dc3545}
+.card{border:1px solid #eee;border-radius:8px;padding:12px;margin-top:10px}
+.card .title{font-weight:bold}
+.card .btns{display:flex;gap:8px;margin-top:8px}
+.card button{padding:6px;font-size:14px}
+</style>
 </head>
+
 <body>
-    <div class="login-box" id="loginBox">
-        <h3>管理员登录</h3>
-        <input type="password" id="pwd" placeholder="请输入管理密码">
-        <button onclick="login()">登录</button>
-    </div>
+<div class="container">
+  <h2>📝 信息管理后台</h2>
 
-    <div class="main-box hidden" id="mainBox">
-        <h3>信息发布 / 修改</h3>
-        <input placeholder="广告标题（如：招聘、出租）" id="title">
-        <textarea rows="6" placeholder="广告详细内容" id="content"></textarea>
-        <button onclick="submitAd()">提交发布</button>
-    </div>
+  <input id="title" placeholder="标题（如：饭店招聘服务员）">
+  <textarea id="content" rows="4" placeholder="详细内容"></textarea>
 
-    <script>
-        const PASSWORD = "123456"
-        function login(){
-            let v = document.getElementById('pwd').value
-            if(v === PASSWORD){
-                document.getElementById('loginBox').classList.add('hidden')
-                document.getElementById('mainBox').classList.remove('hidden')
-            }else{
-                alert("密码错误")
-            }
-        }
-        function submitAd(){
-            alert("发布成功！请联系站长更新到网站")
-        }
-    </script>
+  <select id="type">
+    <option value="招聘">招聘</option>
+    <option value="出租">出租</option>
+    <option value="出售">出售</option>
+    <option value="出兑/转让">出兑/转让</option>
+    <option value="服务/其他">服务/其他</option>
+  </select>
+
+  <select id="industry">
+    <option value="餐饮/烧烤/火锅">餐饮/烧烤/火锅</option>
+    <option value="超市/百货/零售">超市/百货/零售</option>
+    <option value="美容/美甲/养生">美容/美甲/养生</option>
+    <option value="物流/快递/司机">物流/快递/司机</option>
+    <option value="工厂/技工/普工">工厂/技工/普工</option>
+    <option value="家政/保洁/护工">家政/保洁/护工</option>
+    <option value="房产/门市/公寓">房产/门市/公寓</option>
+    <option value="其他">其他</option>
+  </select>
+
+  <select id="jobType">
+    <option value="全职长期">全职长期</option>
+    <option value="兼职/小时工">兼职/小时工</option>
+    <option value="学徒">学徒</option>
+    <option value="临时工/日结">临时工/日结</option>
+  </select>
+
+  <button onclick="add()">➕ 发布 / 更新信息</button>
+  <button class="danger" onclick="clearForm()">🧹 清空表单</button>
+
+  <div id="list"></div>
+</div>
+
+<script>
+// 读取本地数据
+let data = JSON.parse(localStorage.getItem('adminData') || '[]')
+let editId = null
+
+function renderList() {
+  let html = ''
+  data.forEach((item, i) => {
+    html += `
+    <div class="card">
+      <div class="title">${item.title}</div>
+      <div>${item.type} | ${item.industry} | ${item.jobType}</div>
+      <div class="btns">
+        <button onclick="edit(${i})">编辑</button>
+        <button onclick="del(${i})" class="danger">删除</button>
+      </div>
+    </div>`
+  })
+  document.getElementById('list').innerHTML = html
+}
+
+// 添加/更新
+function add() {
+  let title = document.getElementById('title').value
+  let content = document.getElementById('content').value
+  let type = document.getElementById('type').value
+  let industry = document.getElementById('industry').value
+  let jobType = document.getElementById('jobType').value
+
+  if (!title || !content) {
+    alert('请填写完整')
+    return
+  }
+
+  let item = { id: Date.now(), title, content, type, industry, jobType }
+
+  if (editId === null) {
+    data.push(item)
+  } else {
+    data[editId] = item
+    editId = null
+  }
+
+  localStorage.setItem('adminData', JSON.stringify(data))
+  clearForm()
+  renderList()
+  exportData()
+}
+
+// 编辑
+function edit(i) {
+  let item = data[i]
+  document.getElementById('title').value = item.title
+  document.getElementById('content').value = item.content
+  document.getElementById('type').value = item.type
+  document.getElementById('industry').value = item.industry
+  document.getElementById('jobType').value = item.jobType
+  editId = i
+}
+
+// 删除
+function del(i) {
+  if (!confirm('确定删除？')) return
+  data.splice(i, 1)
+  localStorage.setItem('adminData', JSON.stringify(data))
+  renderList()
+  exportData()
+}
+
+// 导出成首页能用的 data.json 格式
+function exportData() {
+  let json = JSON.stringify(data, null, 2)
+  console.log(json)
+  alert('已更新！复制下方数据到 data.json 即可同步首页：\n\n' + json)
+}
+
+// 清空
+function clearForm() {
+  document.getElementById('title').value = ''
+  document.getElementById('content').value = ''
+  editId = null
+}
+
+renderList()
+</script>
 </body>
 </html>
