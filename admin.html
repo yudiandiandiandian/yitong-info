@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>管理后台</title>
+    <style>
+        body{max-width:700px; margin:20px auto; padding:0 10px; font-family:微软雅黑;}
+        .login-box, .main-box{background:white; padding:20px; border-radius:10px; box-shadow:0 0 10px #ccc;}
+        input,textarea,button{width:100%; margin:8px 0; padding:10px; font-size:16px; box-sizing:border-box;}
+        button{background:#0d6efd; color:white; border:none; border-radius:5px; cursor:pointer;}
+        .hidden{display:none;}
+    </style>
+</head>
+<body>
+    <div class="login-box" id="loginBox">
+        <h3>管理员登录</h3>
+        <input type="password" id="pwd" placeholder="请输入管理密码">
+        <button onclick="login()">登录</button>
+    </div>
+
+    <div class="main-box hidden" id="mainBox">
+        <h3>信息发布 / 修改</h3>
+        <input placeholder="广告标题（如：招聘、出租）" id="title">
+        <textarea rows="6" placeholder="广告详细内容" id="content"></textarea>
+        <button onclick="submitAd()">提交发布</button>
+    </div>
+
+    <script>
+        const PASSWORD = "123456"
+        function login(){
+            let v = document.getElementById('pwd').value
+            if(v === PASSWORD){
+                document.getElementById('loginBox').classList.add('hidden')
+                document.getElementById('mainBox').classList.remove('hidden')
+            }else{
+                alert("密码错误")
+            }
+        }
+        function submitAd(){
+            alert("发布成功！请联系站长更新到网站")
+        }
+    </script>
+</body>
+</html>
